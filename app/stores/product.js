@@ -8,9 +8,15 @@ export const useProductsStore = defineStore('products', {
   actions: {
     async load() {
       const { public: { apiBase } } = useRuntimeConfig()
+      const auth = useAuthStore()
+      const headers = auth.token ? { Authorization: `Bearer ${auth.token}` } : {}
+      
       this.loading = true
       try {
-        this.items = await $fetch(`${apiBase}/products`)
+        this.items = await $fetch(`${apiBase}/products`, { headers })
+      } catch (e) {
+        console.error('Load products failed', e)
+        this.items = []
       } finally {
         this.loading = false
       }
@@ -19,8 +25,12 @@ export const useProductsStore = defineStore('products', {
     async create(payload) {
       // payload = { name, category_id, unit_price, retail_price, stock }
       const { public: { apiBase } } = useRuntimeConfig()
+      const auth = useAuthStore()
+      const headers = auth.token ? { Authorization: `Bearer ${auth.token}` } : {}
+
       await $fetch(`${apiBase}/products`, {
         method: 'POST',
+        headers,
         body: {
           name: payload.name,
           category_id: payload.category_id,
@@ -34,13 +44,21 @@ export const useProductsStore = defineStore('products', {
 
     async findBySku(sku) {
       const { public: { apiBase } } = useRuntimeConfig()
-      this.found = await $fetch(`${apiBase}/products/${sku}`)
+      const auth = useAuthStore()
+      const headers = auth.token ? { Authorization: `Bearer ${auth.token}` } : {}
+
+      this.found = await $fetch(`${apiBase}/products/${sku}`, { headers })
+      return this.found
     },
 
     async adjustStock(sku, delta) {
       const { public: { apiBase } } = useRuntimeConfig()
+      const auth = useAuthStore()
+      const headers = auth.token ? { Authorization: `Bearer ${auth.token}` } : {}
+
       await $fetch(`${apiBase}/products/${sku}/stock`, {
         method: 'PATCH',
+        headers,
         body: { adjustment: delta }
       })
       await this.load()
@@ -49,8 +67,12 @@ export const useProductsStore = defineStore('products', {
     async update(sku, payload) {
       // payload = { name, unit_price, retail_price, category_id }
       const { public: { apiBase } } = useRuntimeConfig()
+      const auth = useAuthStore()
+      const headers = auth.token ? { Authorization: `Bearer ${auth.token}` } : {}
+
       await $fetch(`${apiBase}/products/${sku}`, {
         method: 'PUT',
+        headers,
         body: {
           name: payload.name,
           unit_price: payload.unit_price != null ? Number(payload.unit_price) : undefined,
@@ -63,7 +85,13 @@ export const useProductsStore = defineStore('products', {
 
     async remove(sku) {
       const { public: { apiBase } } = useRuntimeConfig()
-      await $fetch(`${apiBase}/products/${sku}`, { method: 'DELETE' })
+      const auth = useAuthStore()
+      const headers = auth.token ? { Authorization: `Bearer ${auth.token}` } : {}
+
+      await $fetch(`${apiBase}/products/${sku}`, { 
+        method: 'DELETE',
+        headers
+      })
       await this.load()
     }
   }
