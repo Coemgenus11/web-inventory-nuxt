@@ -43,15 +43,25 @@ const pay = async () => {
     alert(`Kulang ₱${shortage.value.toFixed(0)}`)
     return
   }
+
+  // --- BAGONG CONFIRMATION ---
+  const itemsList = cart.value.map(i => `• ${i.name} x${i.qty}`).join('\n')
+  const msg = `Confirm Sale?\n\n${itemsList}\n\nTotal: ₱${total.value.toFixed(2)}\nCash: ₱${cashNum.value.toFixed(2)}\nChange: ₱${change.value.toFixed(2)}`
+  
+  if (!confirm(msg)) return
+  // --- END ---
+
   await sales.checkout({
     items: cart.value.map(i => ({ sku: i.sku, qty: i.qty })),
     cash: cash.value
   })
+  
   alert(`Paid ₱${total.value.toFixed(2)} - Change ₱${change.value.toFixed(2)}`)
   cart.value = []
   cash.value = ''
   showCart.value = false
   products.load()
+  sales.loadDashboard() // para update agad cash on hand
 }
 </script>
 

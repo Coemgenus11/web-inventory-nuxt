@@ -4,6 +4,7 @@ const products = useProductsStore() // kailangan para sa refresh ng stock
 const tab = ref('overview')
 const expanded = ref(null)
 const details = ref({})
+const showCashOut = ref(false)
 
 onMounted(() => sales.loadDashboard())
 
@@ -22,11 +23,19 @@ const toggle = async (id) => {
 
 const doReturn = async (saleId, item) => {
   const remaining = item.quantity - (item.returned_qty || 0)
-  const qty = Number(prompt(`Ilan ibabalik sa ${item.name}? (max ${remaining})`, '1'))
+  const qty = Number(prompt(`How many to return for ${item.name}? (max ${remaining})`, '1'))
   if (!qty || qty <= 0 || qty > remaining) return
+
+  // --- NEW CONFIRMATION ---
+  const refundAmount = Number(item.unit_price) * qty
+  const confirmMsg = `Confirm Return?\n\nProduct: ${item.name}\nQuantity: ${qty}\nRefund: ${peso(refundAmount)}\n\nThis will add back to stock and deduct from cash on hand.`
+
+  if (!confirm(confirmMsg)) return
+  // --- END ---
+
   try {
     const res = await sales.returnSale(saleId, [{ sale_item_id: item.id, qty }])
-    alert(`Na-return! Refund: ${peso(res.total_refund)}`)
+    alert(`Returned! Refund: ${peso(res.total_refund)}`)
     // refresh
     details.value[saleId] = await sales.fetchSale(saleId)
     await sales.loadDashboard()
@@ -56,6 +65,18 @@ const doReturn = async (saleId, item) => {
       <p class="text-2xl font-bold mt-1">{{ peso(sales.summary.month.total) }}</p>
       <p class="text-xs text-gray-500 mt-1">{{ sales.summary.month.orders }} orders</p>
     </div>
+    <div class="bg-white p-5 rounded-2xl border">
+      <p class="text-sm text-gray-500">All Time Sales</p>
+      <p class="text-2xl font-bold mt-1">{{ peso(sales.summary.allTime.total) }}</p>
+      <p class="text-xs text-gray-500 mt-1">{{ sales.summary.allTime.orders }} orders</p>
+    </div>
+    <div class="bg-white p-5 rounded-2xl border-2 border-green-500">
+        <p class="text-sm text-gray-500">Cash on Hand</p>
+        <p class="text-2xl font-bold mt-1 text-green-600">{{ peso(sales.summary.cash?.onHand) }}</p>
+        <p class="text-xs text-gray-500 mt-1">
+        In: {{ peso(sales.summary.cash?.salesIn) }} • Out: {{ peso((sales.summary.cash?.expensesOut||0)+(sales.summary.cash?.returnsOut||0)) }}
+        </p>
+    </div>
   </div>
 
   <!-- tabs -->
@@ -66,6 +87,12 @@ const doReturn = async (saleId, item) => {
     </div>
 
     <div v-if="tab==='overview'" class="p-6">
+        <div class="flex justify-end mb-4">
+            <CashOutModal v-model:show="showCashOut" @saved="sales.loadDashboard()" />
+            <button @click="showCashOut=true" class="px-4 py-2 bg-red-600 text-white rounded-xl text-sm">
+            + Cash Out
+            </button>
+        </div>
         <div class="grid md:grid-cols-2 gap-4">
             
             <!-- POS CARD -->
