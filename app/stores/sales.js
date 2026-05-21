@@ -1,11 +1,11 @@
 export const useSalesStore = defineStore('sales', {
   state: () => ({
-    summary: { 
-      today:{orders:0,total:0}, 
-      week:{orders:0,total:0}, 
-      month:{orders:0,total:0}, 
+    summary: {
+      today:{orders:0,total:0},
+      week:{orders:0,total:0},
+      month:{orders:0,total:0},
       allTime: { orders: 0, total: 0 },
-      cash:{ salesIn:0, returnsOut:0, expensesOut:0, onHand:0 } // <-- dagdag
+      cash:{ salesIn:0, returnsOut:0, expensesOut:0, onHand:0, pendingOut:0, pendingCount:0 }
     },
     history: [],
     loading: false,
