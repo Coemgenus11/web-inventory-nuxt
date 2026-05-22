@@ -64,7 +64,7 @@ const submit = async () => {
 <Transition name="fade">
   <div v-if="show" class="fixed inset-0 z-[80] flex items-end md:items-center justify-center p-0 md:p-4">
     <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" @click="close"></div>
-    <div class="relative w-full md:max-w-lg bg-white rounded-t-3xl md:rounded-3xl shadow-2xl max-h- flex flex-col">
+    <div class="relative w-full md:max-w-lg bg-white rounded-t-3xl md:rounded-3xl shadow-2xl max-h-[90vh] flex flex-col overflow-hidden">
 
       <div class="px-5 sm:px-6 pt-5 pb-4 flex justify-between items-start shrink-0">
         <div>

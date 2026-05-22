@@ -67,7 +67,7 @@ const pay = async () => {
 
 <template>
 <div class="min-h-screen bg-neutral-50">
-  <div class="max-w-md mx-auto flex flex-col h- pb-[calc(5.5rem+env(safe-area-inset-bottom))] md:pb-0">
+  <div class="max-w-md mx-auto flex flex-col h-[100dvh] pb-[calc(5.5rem+env(safe-area-inset-bottom))] md:pb-0">
     <!-- Search -->
     <div class="px-3 pt-4 pb-3 bg-neutral-50 sticky top-0 z-10">
       <div class="relative">
@@ -81,7 +81,7 @@ const pay = async () => {
     </div>
 
     <!-- Products -->
-    <div class="flex-1 overflow-y-auto px-3">
+    <div class="flex-1 overflow-y-auto px-3 pb-20 mt-2">
       <div class="grid grid-cols-2 gap-2.5 pb-4">
         <button
           v-for="p in list"
@@ -122,32 +122,34 @@ const pay = async () => {
 
   <!-- Cart Sheet -->
   <Transition name="slide">
-    <div v-if="showCart" class="fixed inset-0 z-40 flex items-end">
-      <div class="absolute inset-0 bg-black/50" @click="showCart=false"></div>
-      <div class="relative w-full max-w-md mx-auto bg-white rounded-t- max-h- flex flex-col" style="margin-bottom: calc(4.25rem + env(safe-area-inset-bottom))">
-        <div class="w-10 h-1 bg-neutral-300 rounded-full mx-auto mt-3 mb-2"></div>
-        <div class="px-5 py-3 border-b flex items-center justify-between">
-          <h3 class="font-semibold">Cart ({{ itemCount }})</h3>
-          <button @click="showCart=false" class="text-sm text-neutral-500">Close</button>
-        </div>
+  <div v-if="showCart" class="fixed inset-0 z-40 flex items-end">
+    <div class="absolute inset-0 bg-black/50" @click="showCart=false"></div>
 
-        <div class="flex-1 overflow-y-auto px-3 py-2">
-          <div v-if="!cart.length" class="py-16 text-center text-neutral-400 text-sm">Walang laman</div>
-          <div v-for="it in cart" :key="it.sku" class="flex items-center gap-3 py-3 border-b border-neutral-100 last:border-0">
-            <div class="flex-1 min-w-0">
-              <p class="text- font-medium truncate">{{ it.name }}</p>
-              <p class="text- text-neutral-500">₱{{ it.price }} • {{ it.stock }} stock</p>
-            </div>
-            <div class="flex items-center gap-2">
-              <button @click="it.qty>1? it.qty-- : cart.splice(cart.indexOf(it),1)" class="w-8 h-8 rounded-xl bg-neutral-100 active:bg-neutral-200 flex items-center justify-center">−</button>
-              <span class="w-6 text-center text- font-medium">{{ it.qty }}</span>
-              <button @click="it.qty < it.stock? it.qty++ : null" :disabled="it.qty>=it.stock" class="w-8 h-8 rounded-xl bg-neutral-100 active:bg-neutral-200 disabled:opacity-30 flex items-center justify-center">+</button>
-            </div>
+    <div class="relative w-full max-w-md mx-auto bg-white rounded-t-3xl max-h-[75vh] flex flex-col overflow-hidden" style="margin-bottom: calc(4.25rem + env(safe-area-inset-bottom))">
+      <div class="w-10 h-1 bg-neutral-300 rounded-full mx-auto mt-3 mb-2 shrink-0"></div>
+
+      <div class="px-5 py-3 border-b flex items-center justify-between shrink-0">
+        <h3 class="font-semibold">Cart ({{ itemCount }})</h3>
+        <button @click="showCart=false" class="text-sm text-neutral-500">Close</button>
+      </div>
+
+      <!-- FIXED: min-h-0 para gumana flex-1 scroll -->
+      <div class="flex-1 overflow-y-auto px-3 py-2 min-h-0">
+        <div v-if="!cart.length" class="py-16 text-center text-neutral-400 text-sm">Walang laman</div>
+        <div v-for="it in cart" :key="it.sku" class="flex items-center gap-3 py-3 border-b border-neutral-100 last:border-0">
+          <div class="flex-1 min-w-0">
+            <p class="text- font-medium truncate">{{ it.name }}</p>
+            <p class="text- text-neutral-500">₱{{ it.price }} • {{ it.stock }} stock</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <button @click="it.qty>1? it.qty-- : cart.splice(cart.indexOf(it),1)" class="w-8 h-8 rounded-xl bg-neutral-100 active:bg-neutral-200 flex items-center justify-center">−</button>
+            <span class="w-6 text-center text- font-medium">{{ it.qty }}</span>
+            <button @click="it.qty < it.stock? it.qty++ : null" :disabled="it.qty>=it.stock" class="w-8 h-8 rounded-xl bg-neutral-100 active:bg-neutral-200 disabled:opacity-30 flex items-center justify-center">+</button>
           </div>
         </div>
+      </div>
 
-        <!-- Pay section with validation -->
-        <div class="border-t bg-neutral-50 p-4 rounded-b-">
+      <div class="border-t bg-neutral-50 p-4 shrink-0">
           <div class="flex gap-2 mb-3">
             <input
               v-model="cash"
